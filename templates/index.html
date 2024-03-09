@@ -12,12 +12,56 @@
         
         <form action="http://127.0.0.1:9000/process" method="post">
             <label for="action">Action Type:</label>
-            <input type="text" name="action" required>
+            <select name="action" id="action" required onchange="toggleRuleIdField()">
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+                <option value="get">Get</option>
+            </select>
             <br>
-            <label for="rule_data">Rule Data (JSON):</label>
-            <textarea name="rule_data" required></textarea>
+
+            <label for="rule_id" id="rule_id_label">Rule ID:</label>
+            <input type="text" name="rule_id" id="rule_id">
             <br>
+
+            <label for="rule_data", id="rule_data_label">Rule Data (JSON):</label>
+            <textarea name="rule_data", id="rule_data_id"></textarea>
+            <br>
+
             <button type="submit">Submit</button>
         </form>
+
+        <script>
+            function toggleRuleIdField(){
+                var actionSelect = document.getElementById("action");
+                var ruleIdLabel = document.getElementById("rule_id_label")
+                var ruleIdInput = document.getElementById("rule_id")
+                var ruleDataLabel = document.getElementById("rule_data_label");
+                var ruleDataId = document.getElementById("rule_data_id")
+
+                if (actionSelect.value == "update" || actionSelect.value == "delete" || actionSelect.value == "get"){
+                    ruleIdLabel.style.display = "block";
+                    ruleIdInput.style.display = "block";
+                    ruleIdInput.required = true;
+                }
+                else{
+                    ruleIdLabel.style.display = "none";
+                    ruleIdInput.style.display = "none";
+                    ruleIdInput.required = false;
+                }
+
+                if (actionSelect.value == "update" || actionSelect.value == "create"){
+                    ruleDataLabel.style.display = "block";
+                    ruleDataId.style.display = "block";
+                    ruleDataId.required = true;
+                }
+                else{
+                    ruleDataLabel.style.display = "none";
+                    ruleDataId.style.display = "none";
+                    ruleDataId.required = false;
+                }
+            }
+        </script>
+
     </body>
 </html>
