@@ -1,31 +1,46 @@
-#import statements
-from RulesDBService import *
+from flask import Flask, request, jsonify, render_template
+import requests
+import logging
 
-#accept input rules from user and the json input data
-user_input = input('Do you want to create/update/read/delete/None any rules?')
-user_input = user_input.lower()
-json_input_data = ''
+app = Flask(__name__)
 
-if user_input != 'none':
-    json_input = input('Provide the rule in json format')
-    rule_input = RulesDBService()
+rules_db_url = 'http://127.0.0.1:9001/rules'
 
-if user_input == 'create':
-    rule_input.createRule(json_input)
-elif user_input == 'update':
-    rule_input.updateRule(json_input)
-elif user_input == 'delete':
-    rule_input.deleteRule(json_input)
-elif user_input == 'get':
-    rule_input.getRule(json_input)
+@app.route('/process', methods=['GET'])
+def home():
+    return render_template('index.html')
 
-#accept input data from user
-# data_input = input('What rule do you want to execute?')
+def send_request_to_rules_db(json_input_data, user_input):
+    try:
+        # Make HTTP POST request to RulesDBService
+        response = requests.post(f'{rules_db_url}/{user_input}', json=json_input_data)
 
-##call the rules engine for further process
+        # Check the response status
+        if response.ok:
+            result = response.json()
+            return result
+        else:
+            logging.error(f'Error calling RulesDBService. Status code: {response.status_code}')
+            return {'error': 'Error calling RulesDBService.'}
 
-#query the rule from the database and pass to the rule engine
+    except requests.RequestException as e:
+        return {'error': str(e)}
+    
 
-#If success, execute action and return action message
+@app.route('/process', methods=['POST'])
+def process_rules():
+    try:
+        # Get input data from the form
+        user_input = request.form.get('action', '').lower()
+        json_input_data = request.form.get('rule_data', '')
 
-#Else return the error message
+        # Call the Front-End Service to process rules
+        response = send_request_to_rules_db(json_input_data, user_input)
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=9000)
