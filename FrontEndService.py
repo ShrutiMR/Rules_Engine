@@ -5,6 +5,7 @@ import logging
 app = Flask(__name__)
 
 rules_db_url = 'http://127.0.0.1:9001/rules'
+rules_engine_url = 'http://127.0.0.1:9002/rules-engine'
 
 @app.route('/process', methods=['GET'])
 def home():
@@ -13,8 +14,6 @@ def home():
 def send_request_to_rules_db(json_input_data, user_input, rule_id=None):
     try:
         # Make HTTP POST request to RulesDBService
-        print(user_input)
-        print(json_input_data)
         if user_input == 'create':
             response = requests.post(f'{rules_db_url}/{user_input}', json=json_input_data)
         elif user_input == 'update':
@@ -33,6 +32,18 @@ def send_request_to_rules_db(json_input_data, user_input, rule_id=None):
             logging.error(f'Error calling RulesDBService. Status code: {response.status_code}')
             return {'error': 'Error calling RulesDBService.'}
 
+    except requests.RequestException as e:
+        return {'error': str(e)}
+    
+def send_request_to_rules_engine(eval_data=None):
+    try:
+        response = requests.get(f'{rules_engine_url}', json=eval_data)
+        if response.ok:
+            result = response.json()
+            return result
+        else:
+            logging.error(f'Error calling RulesDBService. Status code: {response.status_code}')
+            return {'error': 'Error calling RulesDBService.'}
     except requests.RequestException as e:
         return {'error': str(e)}
     
@@ -55,12 +66,15 @@ def process_rules():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/evaluate', methods=['POST'])
 def evaluate_rules():
     try:
-        # response = requests.get(f'{rules_db_url}/{user_input}/{rule_id}', json=json_input_data)
-        return jsonify({'status': 'ok', 'message': 'Health check success!'}), 200
-        # return jsonify(response), 200
+        eval_data = request.form.get('eval_data')
+        print(eval_data)
+
+        response = send_request_to_rules_engine(eval_data)
+        return jsonify(response), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

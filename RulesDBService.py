@@ -18,7 +18,8 @@ class RulesDBService:
         with open(csv_file_path, mode='r', newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             existing_rows = list(csv_reader)
-        csv_row = [len(existing_rows) + 1, format_rule["name"], format_rule["condition"], format_rule["action"]]
+        
+        csv_row = [int(existing_rows[-1][0]) + 1, format_rule["name"], format_rule["condition"], format_rule["action"]]
 
         with open(csv_file_path, mode='a', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
@@ -47,7 +48,12 @@ class RulesDBService:
             csv_reader = csv.reader(csv_file)
             existing_rows = list(csv_reader)
 
-        return existing_rows[int(rule_id)-1]
+        for row in existing_rows[1:]:
+            print(row)
+            if row[0] == rule_id:
+                return row
+        
+        return None
 
     def deleteRule(self, rule_id):
         csv_file_path = "rules_engine_db/RulesFile.csv"
@@ -57,7 +63,13 @@ class RulesDBService:
             csv_reader = csv.reader(csv_file)
             existing_rows = list(csv_reader)
 
-        del existing_rows[int(rule_id)-1]
+        req_row = 0
+        for row in existing_rows[1:]:
+            req_row += 1
+            if int(row[0]) == rule_id:
+                break
+        
+        del existing_rows[req_row]
         with open(csv_file_path, mode='w', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(existing_rows)
