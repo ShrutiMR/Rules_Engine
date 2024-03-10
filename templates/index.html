@@ -13,6 +13,7 @@
         <form action="http://127.0.0.1:9000/process" method="post">
             <label for="action">Action Type:</label>
             <select name="action" id="action" required onchange="toggleRuleIdField()">
+                <option value="default">Choose an action</option>
                 <option value="create">Create</option>
                 <option value="update">Update</option>
                 <option value="delete">Delete</option>
@@ -32,6 +33,18 @@
         </form>
 
         <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Initially hide all the fields when the page loads
+                var ruleIdLabel = document.getElementById("rule_id_label");
+                var ruleDataLabel = document.getElementById("rule_data_label");
+                var ruleIdInput = document.getElementById("rule_id");
+                var ruleDataId = document.getElementById("rule_data_id")
+                ruleIdLabel.style.display = "none";
+                ruleDataLabel.style.display = "none";
+                ruleIdInput.style.display = "none";
+                ruleDataId.style.display = "none";
+            });
+
             function toggleRuleIdField(){
                 var actionSelect = document.getElementById("action");
                 var ruleIdLabel = document.getElementById("rule_id_label")

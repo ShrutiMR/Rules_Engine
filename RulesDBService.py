@@ -39,11 +39,28 @@ class RulesDBService:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(existing_rows)
 
-    def getRule(self, json_input):
-        print('Get rule')
+    def getRule(self, rule_id):
+        csv_file_path = "rules_engine_db/RulesFile.csv"
 
-    def deleteRule(self, json_input):
-        print('Delete rule')
+        existing_rows = []
+        with open(csv_file_path, mode='r', newline='') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            existing_rows = list(csv_reader)
+
+        return existing_rows[int(rule_id)-1]
+
+    def deleteRule(self, rule_id):
+        csv_file_path = "rules_engine_db/RulesFile.csv"
+
+        existing_rows = []
+        with open(csv_file_path, mode='r', newline='') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            existing_rows = list(csv_reader)
+
+        del existing_rows[int(rule_id)-1]
+        with open(csv_file_path, mode='w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerows(existing_rows)
 
 rules_service = RulesDBService()
 
@@ -70,6 +87,24 @@ def update_rule(id):
         rule_update_data = request.get_json()
         rules_service.updateRule(id, rule_update_data)
         return jsonify({'message': 'Rule updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# API endpoint for getting a rule
+@app.route('/rules/get/<rule_id>', methods=['GET'])
+def get_rule(rule_id):
+    try:
+        rule = rules_service.getRule(rule_id)
+        return jsonify(rule), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# API endpoint for deleting a rule
+@app.route('/rules/delete/<int:rule_id>', methods=['DELETE'])
+def delete_rule(rule_id):
+    try:
+        rules_service.deleteRule(rule_id)
+        return jsonify({'message': 'Rule deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
