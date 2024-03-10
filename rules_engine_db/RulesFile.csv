@@ -1,8 +1,8 @@
-
-rule1,income > 1000,discount 10%
-rule1,income > 1000,discount 10%
-rule1,income > 1000,discount 10%
-rule1,income > 1000,discount 10%
+ID,Name,Condition,Action
+rule1,income > 1000,discount 10%,
+rule1,income > 1000,discount 10%,
+rule1,income > 1000,discount 10%,
+rule1,income > 1000,discount 10%,
 30,rule1,income > 1000,discount 10%
 7,rule1,income > 1000,discount 10%
 9,rule1,income > 1000,discount 10%
