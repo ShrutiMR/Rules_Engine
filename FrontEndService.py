@@ -55,6 +55,15 @@ def process_rules():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/evaluate', methods=['POST'])
+def evaluate_rules():
+    try:
+        # response = requests.get(f'{rules_db_url}/{user_input}/{rule_id}', json=json_input_data)
+        return jsonify({'status': 'ok', 'message': 'Health check success!'}), 200
+        # return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=9000)

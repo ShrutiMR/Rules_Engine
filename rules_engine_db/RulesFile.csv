@@ -9,8 +9,8 @@ rule1,income > 1000,discount 10%,
 11,rule11,income > 1000,discount 10%
 12,rule1,income > 1000,discount 10%
 13,rule1,income > 1000,discount 10%
-14,rule1,income > 1000,discount 10%
 15,rule1,income > 1000,discount 10%
 16,rule1,income > 1000,discount 10%
 17,rule1,income > 1000,discount 10%
 18,rule1,income > 1000,discount 10%
+17,rule1,income > 1000,discount 10%

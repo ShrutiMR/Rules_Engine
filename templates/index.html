@@ -76,5 +76,17 @@
             }
         </script>
 
+        <h1>User input for Evaluating Rules</h1>
+        
+        <form action="http://127.0.0.1:9000/evaluate" method="post">
+
+            <label for="eval_data", id="eval_data_label" display = 'block'>Data to evaluate (JSON):</label><br>
+            <textarea name="eval_data", id="eval_data_id" display = 'block'></textarea>
+            <br>
+            <br>
+
+            <button type="submit">Submit</button>
+        </form>
+
     </body>
 </html>
