@@ -9,3 +9,4 @@ ID,Name,Condition,Action
 18,rule1,income > 1000,discount 10%
 17,rule1,income > 1000,discount 10%
 19,rule001,income > 8000,discount 10%
+20,ageRule,age < 100,initial_state

@@ -6,11 +6,22 @@ app = Flask(__name__)
 
 class Customer:
 
-    def meetsThresholdIncome(self, rule_name, income):
-        csv_file_path = "rules_engine_db/RulesFile.csv"
+    def __init__(self) -> None:
+        self.csv_file_path = "rules_engine_db/RulesFile.csv"
 
+    def formatRule(self, input_data):
+        format_input = json.loads(input_data)
+        print(format_input)
+        if 'income' in format_input and 'age' in format_input:
+            return self.meetsThresholdIncome(format_input['name'], int(format_input['income'])) and self.meetsThresholdAge(format_input['name'], int(format_input['age']))
+        elif 'income' in format_input:
+            return self.meetsThresholdIncome(format_input['name'], int(format_input['income']))
+        elif 'age' in format_input:
+            return self.meetsThresholdAge(format_input['name'], int(format_input['age']))
+
+    def findFromTable(self, rule_name, rule_condition):
         existing_rows = []
-        with open(csv_file_path, mode='r', newline='') as csv_file:
+        with open(self.csv_file_path, mode='r', newline='') as csv_file:
             csv_reader = csv.reader(csv_file)
             existing_rows = list(csv_reader)
 
@@ -26,22 +37,29 @@ class Customer:
         operator = req_condition[1]
         threshold = int(req_condition[2])
         if operator == '>':
-            if income > threshold:
+            if rule_condition > threshold:
                 return req_action
             else:
                 return 'Invalid'
         elif operator == '<':
-            if income < threshold:
+            if rule_condition < threshold:
                 return req_action
             else:
                 return 'Invalid'
         elif operator == '==':
-            if income == threshold:
+            if rule_condition == threshold:
                 return req_action
             else:
                 return 'Invalid'
 
         return 'Not found!'
+
+    def meetsThresholdIncome(self, rule_name, income):
+        return self.findFromTable(rule_name, income)
+    
+    def meetsThresholdAge(self, rule_name, age):
+        return self.findFromTable(rule_name, age)
+
 
 
 customer = Customer()
@@ -49,8 +67,7 @@ customer = Customer()
 @app.route('/rules-engine', methods=['GET'])
 def evaluate_rule():
     input_data = request.get_json()
-    format_input = json.loads(input_data)
-    res = customer.meetsThresholdIncome(format_input['name'], int(format_input['income']))
+    res = customer.formatRule(input_data)
     return jsonify({'status': 'ok', 'message': 'Rule engine success!', 'result': res}), 200
 
 if __name__ == '__main__':
