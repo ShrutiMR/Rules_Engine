@@ -17,20 +17,14 @@ def send_request_to_rules_db(json_input_data, user_input, rule_id=None):
         if user_input == 'create':
             response = requests.post(f'{rules_db_url}/{user_input}', json=json_input_data)
         elif user_input == 'update':
-            print('enter')
             response = requests.put(f'{rules_db_url}/{user_input}/{rule_id}', json=json_input_data)
         elif user_input == 'delete':
             response = requests.delete(f'{rules_db_url}/{user_input}/{rule_id}', json=json_input_data)
         elif user_input == 'get':
             response = requests.get(f'{rules_db_url}/{user_input}/{rule_id}', json=json_input_data)
 
-        # Check the response status
-        if response.ok:
-            result = response.json()
-            return result
-        else:
-            logging.error(f'Error calling RulesDBService. Status code: {response.status_code}')
-            return {'error': 'Error calling RulesDBService.'}
+        result = response.json()
+        return result
 
     except requests.RequestException as e:
         return {'error': str(e)}
@@ -38,12 +32,9 @@ def send_request_to_rules_db(json_input_data, user_input, rule_id=None):
 def send_request_to_rules_engine(eval_data=None):
     try:
         response = requests.get(f'{rules_engine_url}', json=eval_data)
-        if response.ok:
-            result = response.json()
-            return result
-        else:
-            logging.error(f'Error calling RulesDBService. Status code: {response.status_code}')
-            return {'error': 'Error calling RulesDBService.'}
+        result = response.json()
+        return result
+
     except requests.RequestException as e:
         return {'error': str(e)}
     
@@ -71,8 +62,6 @@ def process_rules():
 def evaluate_rules():
     try:
         eval_data = request.form.get('eval_data')
-        print(eval_data)
-
         response = send_request_to_rules_engine(eval_data)
         return jsonify(response), 200
 

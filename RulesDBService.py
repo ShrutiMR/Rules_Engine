@@ -2,82 +2,110 @@ import json
 import csv
 from flask import Flask, request, jsonify
 import traceback
+from Utils import *
 
 app = Flask(__name__)
 
 class RulesDBService:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, csv_file_path, utils) -> None:
+        self.csv_file_path = csv_file_path
+        self.utils = utils
 
     def createRule(self, json_input):
-        format_rule = json.loads(json_input)
+        try:
+            format_rule = json.loads(json_input)
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
+            
+            index_val = 1
+            if len(existing_rows) > 1:
+                index_val = int(existing_rows[-1][0]) + 1
 
-        csv_file_path = "rules_engine_db/RulesFile.csv"
+            for row in existing_rows:
+                if row[1] == format_rule["name"]:
+                    raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
+            
+            csv_row = [index_val, format_rule["name"], format_rule["condition"], format_rule["action"]]
 
-        existing_rows = []
-        with open(csv_file_path, mode='r', newline='') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            existing_rows = list(csv_reader)
+            with open(self.csv_file_path, mode='a', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(csv_row)
+                    
+        except ValueError as ve:
+            raise ValueError(str(ve))
         
-        index_val = 1
-        if len(existing_rows) > 1:
-            index_val = int(existing_rows[-1][0]) + 1
-        csv_row = [index_val, format_rule["name"], format_rule["condition"], format_rule["action"]]
-
-        with open(csv_file_path, mode='a', newline='') as csv_file:
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerow(csv_row)
+        except Exception as e:
+            raise Exception(str(e))
 
     def updateRule(self, rule_id, json_input):
-        format_rule = json.loads(json_input)
+        try:
+            format_rule = json.loads(json_input)
+            if rule_id == '0':
+                raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
 
-        csv_file_path = "rules_engine_db/RulesFile.csv"
+            check_if_row_exists = False
+            row_index = 0
+            for i, row in enumerate(existing_rows):
+                if row[0] == rule_id:
+                    check_if_row_exists = True
+                    row_index = i
+                if row[0] != rule_id and row[1] == format_rule["name"]:
+                    raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
 
-        existing_rows = []
-        with open(csv_file_path, mode='r', newline='') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            existing_rows = list(csv_reader)
+            if not check_if_row_exists:
+                raise ValueError(f"Rule id - {rule_id} does not exist!")
 
-        existing_rows[int(rule_id)-1] = [rule_id, format_rule["name"], format_rule["condition"], format_rule["action"]]
-        with open(csv_file_path, mode='w', newline='') as csv_file:
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerows(existing_rows)
+            existing_rows[row_index] = [rule_id, format_rule["name"], format_rule["condition"], format_rule["action"]]
+            with open(self.csv_file_path, mode='w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerows(existing_rows)
+
+        except ValueError as ve:
+            raise ValueError(str(ve))
+        
+        except Exception as e:
+            raise Exception(str(e))
 
     def getRule(self, rule_id):
-        csv_file_path = "rules_engine_db/RulesFile.csv"
+        try:
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
+            if rule_id == '0':
+                raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
-        existing_rows = []
-        with open(csv_file_path, mode='r', newline='') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            existing_rows = list(csv_reader)
-
-        for row in existing_rows[1:]:
-            print(row)
-            if row[0] == rule_id:
-                return row
+            row_exists, req_row = self.utils.checkIfRuleExists(rule_id, existing_rows)
+            if not row_exists:
+                raise ValueError(f"Rule id - {rule_id} does not exist!")
+            
+            print(req_row)
+            return existing_rows[req_row]
         
-        return None
+        except ValueError as ve:
+            raise ValueError(str(ve))
+        
+        except Exception as e:
+            raise Exception(str(e))
 
     def deleteRule(self, rule_id):
-        csv_file_path = "rules_engine_db/RulesFile.csv"
+        try:
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
+            if rule_id == '0':
+                raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
-        existing_rows = []
-        with open(csv_file_path, mode='r', newline='') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            existing_rows = list(csv_reader)
+            row_exists, req_row = self.utils.checkIfRuleExists(rule_id, existing_rows)
+            if not row_exists:
+                raise ValueError(f"Rule id - {rule_id} does not exist!")
 
-        req_row = 0
-        for row in existing_rows[1:]:
-            req_row += 1
-            if int(row[0]) == rule_id:
-                break
+            del existing_rows[req_row]
+            with open(self.csv_file_path, mode='w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerows(existing_rows)
+        except ValueError as ve:
+            raise ValueError(str(ve))
         
-        del existing_rows[req_row]
-        with open(csv_file_path, mode='w', newline='') as csv_file:
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerows(existing_rows)
+        except Exception as e:
+            raise Exception(str(e))
 
-rules_service = RulesDBService()
+rules_service = RulesDBService("rules_engine_db/RulesFile.csv", Utils())
 
 #API endpoint for health check
 @app.route('/rules', methods=['GET'])
@@ -90,18 +118,22 @@ def create_rule():
     try:
         rule_insert_data = request.get_json()
         rules_service.createRule(rule_insert_data)
-        return jsonify({'message': 'Rule created successfully'}), 201
+        return json.dumps({'message': 'Rule created successfully'}), 201
+    except ValueError as ve:
+        return json.dumps({'error': str(ve)}), 400
     except Exception as e:
-        traceback.print_exc() #to log for exception details
-        return jsonify({'error': str(e)}), 500
+        traceback.print_exc() #logs for exception details
+        return json.dumps({'error': str(e)}), 500
 
 # API endpoint for updating a rule
-@app.route('/rules/update/<id>', methods=['PUT'])
-def update_rule(id):
+@app.route('/rules/update/<rule_id>', methods=['PUT'])
+def update_rule(rule_id):
     try:
         rule_update_data = request.get_json()
-        rules_service.updateRule(id, rule_update_data)
+        rules_service.updateRule(rule_id, rule_update_data)
         return jsonify({'message': 'Rule updated successfully'}), 200
+    except ValueError as ve:
+        return json.dumps({'error': str(ve)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -111,15 +143,19 @@ def get_rule(rule_id):
     try:
         rule = rules_service.getRule(rule_id)
         return jsonify(rule), 200
+    except ValueError as ve:
+        return json.dumps({'error': str(ve)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
 # API endpoint for deleting a rule
-@app.route('/rules/delete/<int:rule_id>', methods=['DELETE'])
+@app.route('/rules/delete/<rule_id>', methods=['DELETE'])
 def delete_rule(rule_id):
     try:
         rules_service.deleteRule(rule_id)
         return jsonify({'message': 'Rule deleted successfully'}), 200
+    except ValueError as ve:
+        return json.dumps({'error': str(ve)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

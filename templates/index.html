@@ -9,7 +9,7 @@
 
     <body>
         <h1>User input for Rules</h1>
-        
+
         <form action="http://127.0.0.1:9000/process" method="post">
             <label for="action">Action Type:</label>
             <select name="action" id="action" required onchange="toggleRuleIdField()">
@@ -29,7 +29,7 @@
             <textarea name="rule_data", id="rule_data_id"></textarea>
             <br>
 
-            <button type="submit">Submit</button>
+            <button type="submit", id="submit_1">Submit</button>
         </form>
 
         <script>
@@ -74,10 +74,11 @@
                     ruleDataId.required = false;
                 }
             }
+
         </script>
 
         <h1>User input for Evaluating Rules</h1>
-        
+
         <form action="http://127.0.0.1:9000/evaluate" method="post">
 
             <label for="eval_data", id="eval_data_label" display = 'block'>Data to evaluate (JSON):</label><br>
@@ -85,7 +86,7 @@
             <br>
             <br>
 
-            <button type="submit">Submit</button>
+            <button type="submit", id="submit_2">Submit</button>
         </form>
 
     </body>
