@@ -19,7 +19,10 @@ class RulesDBService:
             csv_reader = csv.reader(csv_file)
             existing_rows = list(csv_reader)
         
-        csv_row = [int(existing_rows[-1][0]) + 1, format_rule["name"], format_rule["condition"], format_rule["action"]]
+        index_val = 1
+        if len(existing_rows) > 1:
+            index_val = int(existing_rows[-1][0]) + 1
+        csv_row = [index_val, format_rule["name"], format_rule["condition"], format_rule["action"]]
 
         with open(csv_file_path, mode='a', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)

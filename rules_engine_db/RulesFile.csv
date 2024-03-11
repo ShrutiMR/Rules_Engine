@@ -1,12 +1,3 @@
 ID,Name,Condition,Action
-7,rule1,income > 1000,discount 10%
-9,rule1,income > 1000,discount 10%
-11,rule11,income > 1000,discount 10%
-12,rule1,income > 1000,discount 10%
-13,rule1,income > 1000,discount 10%
-15,rule1,income > 1000,discount 10%
-16,rule1,income > 1000,discount 10%
-18,rule1,income > 1000,discount 10%
-17,rule1,income > 1000,discount 10%
-19,rule001,income > 8000,discount 10%
-20,ageRule,age < 100,initial_state
+1,ageRule,age < 100,initial_state
+2,incomeRule,income < 10000,initial_state
