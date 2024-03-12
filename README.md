@@ -4,7 +4,7 @@
 
 ### Architecture
 
-![Architecture Diagram](templates\diagram.png)
+![Architecture Diagram](https://github.com/ShrutiMR/Rules_Engine/blob/main/templates/diagram.png)
 
 There are three microservices in this project. Each of the microservices has FlaskAPI endpoints and a connection can be made through the appropriate port number and host. More information about each microservice is given below.
 
