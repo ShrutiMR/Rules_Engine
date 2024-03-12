@@ -1,0 +1,2 @@
+ID,Name,Condition,Action
+1,incomeRule,income > 8000,initial_state

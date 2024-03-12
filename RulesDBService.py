@@ -31,10 +31,10 @@ class RulesDBService:
                 csv_writer.writerow(csv_row)
                     
         except ValueError as ve:
-            raise ValueError(str(ve))
+            return ValueError(str(ve))
         
         except Exception as e:
-            raise Exception(str(e))
+            return Exception(str(e))
 
     def updateRule(self, rule_id, json_input):
         try:
@@ -43,17 +43,13 @@ class RulesDBService:
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
             existing_rows = self.utils.getExistingRows(self.csv_file_path)
 
-            check_if_row_exists = False
-            row_index = 0
-            for i, row in enumerate(existing_rows):
-                if row[0] == rule_id:
-                    check_if_row_exists = True
-                    row_index = i
-                if row[0] != rule_id and row[1] == format_rule["name"]:
-                    raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
-
+            check_if_row_exists, row_index = self.utils.checkIfRuleExists(existing_rows, rule_id)
             if not check_if_row_exists:
                 raise ValueError(f"Rule id - {rule_id} does not exist!")
+
+            for i, row in enumerate(existing_rows):
+                if row[0] != rule_id and row[1] == format_rule["name"]:
+                    raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
 
             existing_rows[row_index] = [rule_id, format_rule["name"], format_rule["condition"], format_rule["action"]]
             with open(self.csv_file_path, mode='w', newline='') as csv_file:
@@ -61,10 +57,10 @@ class RulesDBService:
                 csv_writer.writerows(existing_rows)
 
         except ValueError as ve:
-            raise ValueError(str(ve))
+            return ValueError(str(ve))
         
         except Exception as e:
-            raise Exception(str(e))
+            return Exception(str(e))
 
     def getRule(self, rule_id):
         try:
@@ -80,10 +76,10 @@ class RulesDBService:
             return existing_rows[req_row]
         
         except ValueError as ve:
-            raise ValueError(str(ve))
+            return ValueError(str(ve))
         
         except Exception as e:
-            raise Exception(str(e))
+            return Exception(str(e))
 
     def deleteRule(self, rule_id):
         try:
@@ -100,10 +96,10 @@ class RulesDBService:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerows(existing_rows)
         except ValueError as ve:
-            raise ValueError(str(ve))
+            return ValueError(str(ve))
         
         except Exception as e:
-            raise Exception(str(e))
+            return Exception(str(e))
 
 rules_service = RulesDBService("rules_engine_db/RulesFile.csv", Utils())
 

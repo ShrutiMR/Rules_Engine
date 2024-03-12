@@ -7,7 +7,7 @@ from Customer import *
 
 app = Flask(__name__)
 
-class RulesEngine:
+class RulesEngineService:
 
     def __init__(self, csv_file_path, utils):
         self.csv_file_path = csv_file_path
@@ -30,29 +30,36 @@ class RulesEngine:
             print(f"State transition: {customer_info.name} -> {new_state}")
 
     def evaluateRule(self, rule_name, rule_condition, customer_info):
-        existing_rows = self.utils.getExistingRows(self.csv_file_path)
-        rule_exists, req_row = self.utils.checkIfRuleExists(existing_rows, None, rule_name)
+        try:
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
+            rule_exists, req_row = self.utils.checkIfRuleExists(existing_rows, None, rule_name)
 
-        print(rule_exists, req_row)
-        if not rule_exists:
-            raise ValueError(f"Rule name - {rule_name} does not exist!")
+            print(rule_exists, req_row)
+            if not rule_exists:
+                raise ValueError(f"Rule name - {rule_name} does not exist!")
 
-        req_condition = existing_rows[req_row][2]
-        req_action = existing_rows[req_row][3]
+            req_condition = existing_rows[req_row][2]
+            req_action = existing_rows[req_row][3]
 
-        prev_state = customer_info.state
-        if self.utils.checkConditions(rule_condition, req_condition):
-            self.performAction(req_action, rule_condition, customer_info)
-            msg = 'Rule satisfied'
-            return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
-        else:
-            new_state = 'reject_state'
-            customer_info.set_state(new_state)
-            msg = 'Rule not satisfied'
-            return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
+            prev_state = customer_info.state
+            if self.utils.checkConditions(rule_condition, req_condition):
+                self.performAction(req_action, rule_condition, customer_info)
+                msg = 'Rule satisfied'
+                return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
+            else:
+                new_state = 'reject_state'
+                customer_info.set_state(new_state)
+                msg = 'Rule not satisfied'
+                return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
+        
+        except ValueError as ve:
+            return ValueError(str(ve))
+        
+        except Exception as e:
+            return Exception(str(e))
 
 
-rule_engine = RulesEngine("rules_engine_db/RulesFile.csv", Utils())
+rule_engine = RulesEngineService("rules_engine_db/RulesFile.csv", Utils())
 
 @app.route('/rules-engine', methods=['GET'])
 def evaluate_rule():
