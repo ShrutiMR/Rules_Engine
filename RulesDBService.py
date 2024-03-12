@@ -11,19 +11,31 @@ class RulesDBService:
         self.csv_file_path = csv_file_path
         self.utils = utils
 
+    def isInputValid(self, json_input):
+        try:
+            json.loads(json_input)
+            return True
+        except ValueError:
+            return False
+
     def createRule(self, json_input):
         try:
+            valid_input = self.isInputValid(json_input)
+            if not valid_input:
+                raise ValueError("Input Json format is invalid!")
+
             format_rule = json.loads(json_input)
             existing_rows = self.utils.getExistingRows(self.csv_file_path)
+
+            rule_name = format_rule['name']
+            rule_exists, req_row = self.utils.checkIfRuleExists(existing_rows, None, rule_name)
+            if rule_exists:
+                raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
             
             index_val = 1
             if len(existing_rows) > 1:
                 index_val = int(existing_rows[-1][0]) + 1
 
-            for row in existing_rows:
-                if row[1] == format_rule["name"]:
-                    raise ValueError(f"Rule with name '{format_rule['name']}' already exists.")
-            
             csv_row = [index_val, format_rule["name"], format_rule["condition"], format_rule["action"]]
 
             with open(self.csv_file_path, mode='a', newline='') as csv_file:
@@ -31,16 +43,21 @@ class RulesDBService:
                 csv_writer.writerow(csv_row)
                     
         except ValueError as ve:
-            return ValueError(str(ve))
+            raise ValueError(str(ve))
         
         except Exception as e:
-            return Exception(str(e))
+            raise Exception(str(e))
 
     def updateRule(self, rule_id, json_input):
         try:
-            format_rule = json.loads(json_input)
             if rule_id == '0':
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
+            
+            valid_input = self.isInputValid(json_input)
+            if not valid_input:
+                raise ValueError("Input Json format is invalid!")
+
+            format_rule = json.loads(json_input)
             existing_rows = self.utils.getExistingRows(self.csv_file_path)
 
             check_if_row_exists, row_index = self.utils.checkIfRuleExists(existing_rows, rule_id)
@@ -57,17 +74,17 @@ class RulesDBService:
                 csv_writer.writerows(existing_rows)
 
         except ValueError as ve:
-            return ValueError(str(ve))
+            raise ValueError(str(ve))
         
         except Exception as e:
-            return Exception(str(e))
+            raise Exception(str(e))
 
     def getRule(self, rule_id):
         try:
-            existing_rows = self.utils.getExistingRows(self.csv_file_path)
             if rule_id == '0':
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
             row_exists, req_row = self.utils.checkIfRuleExists(existing_rows, rule_id)
             if not row_exists:
                 raise ValueError(f"Rule id - {rule_id} does not exist!")
@@ -76,17 +93,17 @@ class RulesDBService:
             return existing_rows[req_row]
         
         except ValueError as ve:
-            return ValueError(str(ve))
+            raise ValueError(str(ve))
         
         except Exception as e:
-            return Exception(str(e))
+            raise Exception(str(e))
 
     def deleteRule(self, rule_id):
         try:
-            existing_rows = self.utils.getExistingRows(self.csv_file_path)
             if rule_id == '0':
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
+            existing_rows = self.utils.getExistingRows(self.csv_file_path)
             row_exists, req_row = self.utils.checkIfRuleExists(existing_rows, rule_id)
             if not row_exists:
                 raise ValueError(f"Rule id - {rule_id} does not exist!")
@@ -96,10 +113,10 @@ class RulesDBService:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerows(existing_rows)
         except ValueError as ve:
-            return ValueError(str(ve))
+            raise ValueError(str(ve))
         
         except Exception as e:
-            return Exception(str(e))
+            raise Exception(str(e))
 
 rules_service = RulesDBService("rules_engine_db/RulesFile.csv", Utils())
 
@@ -113,6 +130,7 @@ def check_api():
 def create_rule():
     try:
         rule_insert_data = request.get_json()
+        print('rule_insert_data -- ', rule_insert_data)
         rules_service.createRule(rule_insert_data)
         return json.dumps({'message': 'Rule created successfully'}), 201
     except ValueError as ve:

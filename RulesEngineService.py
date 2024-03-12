@@ -34,15 +34,26 @@ class RulesEngineService:
             existing_rows = self.utils.getExistingRows(self.csv_file_path)
             rule_exists, req_row = self.utils.checkIfRuleExists(existing_rows, None, rule_name)
 
-            print(rule_exists, req_row)
             if not rule_exists:
                 raise ValueError(f"Rule name - {rule_name} does not exist!")
-
-            req_condition = existing_rows[req_row][2]
+            
+            existing_condition = existing_rows[req_row][2].replace("'", '"')
+            parsed_conditions = json.loads(existing_condition)
+            print('parsed_conditions -- ', parsed_conditions, type(parsed_conditions))
             req_action = existing_rows[req_row][3]
 
+
+            is_correct_rule = False
+            for cond in parsed_conditions:
+                print(cond, type(cond))
+                if cond['key'] in rule_condition:
+                    is_correct_rule = True
+                    break
+            if not is_correct_rule:
+                raise ValueError(f"Wrong Rule chosen! Condition not included in given rule name.")
+
             prev_state = customer_info.state
-            if self.utils.checkConditions(rule_condition, req_condition):
+            if self.utils.checkConditions(rule_condition, parsed_conditions):
                 self.performAction(req_action, rule_condition, customer_info)
                 msg = 'Rule satisfied'
                 return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
@@ -53,10 +64,10 @@ class RulesEngineService:
                 return msg, f"State transition of {customer_info.name}: {prev_state} -> {customer_info.state}"
         
         except ValueError as ve:
-            return ValueError(str(ve))
+            raise ValueError(str(ve))
         
         except Exception as e:
-            return Exception(str(e))
+            raise Exception(str(e))
 
 
 rule_engine = RulesEngineService("rules_engine_db/RulesFile.csv", Utils())

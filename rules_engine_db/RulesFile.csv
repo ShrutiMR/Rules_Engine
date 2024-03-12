@@ -1,4 +1,5 @@
 ID,Name,Condition,Action
-1,ageRule,age < 100,initial_state
-2,incomeRule,income < 10000,initial_state
-3,heightRule,height > 174,initial_state
+1,ageRule,"[{'key': 'age', 'constraints': '<', 'value': 100}]",initial_state
+2,incomeRule,"[{'key': 'income', 'constraints': '<', 'value': 10000}]",initial_state
+3,heightRule,"[{'key': 'height', 'constraints': '>', 'value': 174}]",initial_state
+4,dummyRule,"[{'key': 'dummy', 'constraints': '>=', 'value': 10}]",initial_state
