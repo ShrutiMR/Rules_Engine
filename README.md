@@ -4,7 +4,7 @@
 
 ### Architecture
 
-![Architecture Diagram][diagram.png]
+![Architecture Diagram][..\diagram.png]
 
 There are three microservices in this project. Each of the microservices have FlaskAPI endpoints and a connection can be made through approriate port number and host. More information about each microservice is given below.
 
