@@ -10,7 +10,7 @@
     <body>
         <h1>User input for Rules</h1>
 
-        <form action="http://127.0.0.1:9000/process" method="post">
+        <form name="rulesForm" action="http://127.0.0.1:9000/process" method="post">
             <label for="action">Action Type:</label>
             <select name="action" id="action" required onchange="toggleRuleIdField()">
                 <option value="default">Choose an action</option>
@@ -29,7 +29,19 @@
             <textarea name="rule_data", id="rule_data_id"></textarea>
             <br>
 
-            <button type="submit", id="submit_1">Submit</button>
+            <button type="submit", id="submit_1" onclick="clearRuleField()">Submit</button>
+        </form>
+
+        <h1>User input for Evaluating Rules</h1>
+
+        <form id="evalForm" name="evalForm" action="http://127.0.0.1:9000/evaluate" method="post">
+
+            <label for="eval_data", id="eval_data_label">Data to evaluate (JSON):</label><br>
+            <textarea name="eval_data", id="eval_data_id"></textarea>
+            <br>
+            <br>
+
+            <button type="submit", id="submit_2" onclick="clearEvalFields()">Submit</button>
         </form>
 
         <script>
@@ -39,6 +51,7 @@
                 var ruleDataLabel = document.getElementById("rule_data_label");
                 var ruleIdInput = document.getElementById("rule_id");
                 var ruleDataId = document.getElementById("rule_data_id")
+                var evalDataId = document.getElementById("eval_data_id")
                 ruleIdLabel.style.display = "none";
                 ruleDataLabel.style.display = "none";
                 ruleIdInput.style.display = "none";
@@ -75,19 +88,23 @@
                 }
             }
 
+            function clearRuleField(){
+                var formName = document.getElementsByName('rulesForm')[0];
+                formName.submit();
+                formName.reset();
+                return false;
+            }
+
+            function clearEvalFields(){
+                var form = document.getElementById('evalForm');
+                form.submit();
+
+                setTimeout(function() {
+                    form.reset();
+                }, 5);
+            }
+
         </script>
-
-        <h1>User input for Evaluating Rules</h1>
-
-        <form action="http://127.0.0.1:9000/evaluate" method="post">
-
-            <label for="eval_data", id="eval_data_label" display = 'block'>Data to evaluate (JSON):</label><br>
-            <textarea name="eval_data", id="eval_data_id" display = 'block'></textarea>
-            <br>
-            <br>
-
-            <button type="submit", id="submit_2">Submit</button>
-        </form>
 
     </body>
 </html>

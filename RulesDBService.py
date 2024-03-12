@@ -72,7 +72,7 @@ class RulesDBService:
             if rule_id == '0':
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
-            row_exists, req_row = self.utils.checkIfRuleExists(rule_id, existing_rows)
+            row_exists, req_row = self.utils.checkIfRuleExists(existing_rows, rule_id)
             if not row_exists:
                 raise ValueError(f"Rule id - {rule_id} does not exist!")
             
@@ -91,7 +91,7 @@ class RulesDBService:
             if rule_id == '0':
                 raise ValueError(f"Wrong Rule id provided. Rule id starts from 1!!")
 
-            row_exists, req_row = self.utils.checkIfRuleExists(rule_id, existing_rows)
+            row_exists, req_row = self.utils.checkIfRuleExists(existing_rows, rule_id)
             if not row_exists:
                 raise ValueError(f"Rule id - {rule_id} does not exist!")
 
@@ -131,33 +131,33 @@ def update_rule(rule_id):
     try:
         rule_update_data = request.get_json()
         rules_service.updateRule(rule_id, rule_update_data)
-        return jsonify({'message': 'Rule updated successfully'}), 200
+        return json.dumps({'message': 'Rule updated successfully'}), 200
     except ValueError as ve:
         return json.dumps({'error': str(ve)}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return json.dumps({'error': str(e)}), 500
 
 # API endpoint for getting a rule
 @app.route('/rules/get/<rule_id>', methods=['GET'])
 def get_rule(rule_id):
     try:
         rule = rules_service.getRule(rule_id)
-        return jsonify(rule), 200
+        return json.dumps({'rule_id': rule[0], 'rule_name': rule[1], 'condition': rule[2], 'action': rule[3]}), 200
     except ValueError as ve:
         return json.dumps({'error': str(ve)}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return json.dumps({'error': str(e)}), 500
     
 # API endpoint for deleting a rule
 @app.route('/rules/delete/<rule_id>', methods=['DELETE'])
 def delete_rule(rule_id):
     try:
         rules_service.deleteRule(rule_id)
-        return jsonify({'message': 'Rule deleted successfully'}), 200
+        return json.dumps({'message': 'Rule deleted successfully'}), 200
     except ValueError as ve:
         return json.dumps({'error': str(ve)}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return json.dumps({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=9001)

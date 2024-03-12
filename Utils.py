@@ -9,11 +9,15 @@ class Utils:
             existing_rows = list(csv_reader)
         return existing_rows
     
-    def checkIfRuleExists(self, rule_id, existing_rows):
+    def checkIfRuleExists(self, existing_rows, rule_id=None, rule_name=None):
         req_row = 0
         rule_exists = False
         for i, row in enumerate(existing_rows):
-            if row[0] == rule_id:
+            if rule_id and row[0] == rule_id:
+                rule_exists = True
+                req_row = i
+                break
+            elif rule_name and row[1] == rule_name:
                 rule_exists = True
                 req_row = i
                 break

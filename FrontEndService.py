@@ -33,6 +33,7 @@ def send_request_to_rules_engine(eval_data=None):
     try:
         response = requests.get(f'{rules_engine_url}', json=eval_data)
         result = response.json()
+        print(result)
         return result
 
     except requests.RequestException as e:
@@ -62,7 +63,9 @@ def process_rules():
 def evaluate_rules():
     try:
         eval_data = request.form.get('eval_data')
+        print('eval_data -- ', eval_data)
         response = send_request_to_rules_engine(eval_data)
+        print('response -- ', response)
         return jsonify(response), 200
 
     except Exception as e:
