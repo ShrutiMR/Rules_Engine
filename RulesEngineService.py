@@ -16,11 +16,8 @@ class RulesEngine:
     def formatInput(self, input_data):
         format_input = json.loads(input_data)
         customer_info = Customer(format_input['customer']['name'], format_input['customer']['state'])
-        # print(format_input.keys(), type(format_input.keys()))
-        if 'income' in format_input:
-            return self.evaluateRule(format_input['name'], format_input['income'], customer_info)
-        elif 'age' in format_input:
-            return self.evaluateRule(format_input['name'], format_input['age'], customer_info)
+        format_input_list = list(format_input.keys())
+        return self.evaluateRule(format_input[format_input_list[0]], format_input[format_input_list[1]], customer_info)
 
     def performAction(self, req_action, rule_condition, customer_info):
         req_action_parts = req_action.split()
