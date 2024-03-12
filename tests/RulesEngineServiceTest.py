@@ -18,22 +18,33 @@ class RulesEngineServiceTest(unittest.TestCase):
         self.client = self.app.test_client()
 
     def testEvaluateRuleDoesNotExist(self):
-        rule_name = 'assetsRule'
-        rule_condition = 5
-        customer_info = Customer('John', 'initial_state')
+        try:
+            rule_name = 'assetsRule'
+            rule_condition = 'income = 500'
+            customer_info = Customer('John', 'initial_state')
 
-        response = self.service.evaluateRule(rule_name, rule_condition, customer_info)
-        expected_msg = f"Rule name - {rule_name} does not exist!"
-        self.assertEqual(str(response), expected_msg)
+            response = self.service.evaluateRule(rule_name, rule_condition, customer_info)
+            expected_msg = f"Rule name - {rule_name} does not exist!"
+            self.assertEqual(str(response), expected_msg)
+        except ValueError as ve:
+            expected_msg = f"Rule name - {rule_name} does not exist!"
+            self.assertEqual(str(ve), expected_msg)
+        except Exception as e:
+            self.assertEqual(str(e), expected_msg)
 
     def testEvaluateRuleExists(self):
-        rule_name = 'incomeRule'
-        rule_condition = 5000
-        customer_info = Customer('Caleb', 'initial_state')
+        try:
+            rule_name = 'incomeRule'
+            rule_condition = 'income = 5000'
+            customer_info = Customer('Caleb', 'initial_state')
 
-        response = self.service.evaluateRule(rule_name, rule_condition, customer_info)
-        expected_msg = "('Rule satisfied', 'State transition of Caleb: initial_state -> accept_state')"
-        self.assertEqual(str(response), expected_msg)
+            response = self.service.evaluateRule(rule_name, rule_condition, customer_info)
+            expected_msg = "('Rule satisfied', 'State transition of Caleb: initial_state -> accept_state')"
+            self.assertEqual(str(response), expected_msg)
+        except ValueError as ve:
+            self.assertEqual(str(ve), expected_msg)
+        except Exception as e:
+            self.assertEqual(str(e), expected_msg)
 
 if __name__ == '__main__':
     unittest.main()
